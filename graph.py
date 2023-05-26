@@ -54,10 +54,13 @@ for h in heroes:
             else:
                 y[idx].append(val)
     
+    # Lineplot of the total damage from each hero.
+    sumplots.append(ax.plot(np.sum(y, axis=0), zorder=0))
+    
     # Invisible Stackplot of the damagesources
-    plots = ax.stackplot(x, y)
+    plots = ax.stackplot(x, y, zorder=10)
     for p in plots:
-        p.set_alpha(0.65)
+        p.set_alpha(0.8)
         p.set_visible(False)
     stackplots.append(plots)
     
@@ -69,8 +72,6 @@ for h in heroes:
     ax.yaxis.tick_right()
     ax.set_xmargin(0)
     
-    # Lineplot of the total damage from each hero.
-    ax.plot(np.sum(y, axis=0))
     
     
     # Add annotation
@@ -78,8 +79,17 @@ for h in heroes:
                     # bbox=dict(boxstyle="round", fc="w"))
     # annot.set_visible(True)
     
-    
-    # def hover(event):
+    # Handle Hovering
+    def hover(event):
+        # Hovering totalherodamage plots
+        if event.inaxes == ax:
+            for idx, plot in enumerate(sumplots):
+                if plot[0].contains(event)[0]:
+                    toggle_plots(idx)
+        else:
+            toggle_plots(-1)
+        
+        # Annotation
         # try:
             # xpos = round(event.xdata)
             # text = ""
@@ -99,7 +109,7 @@ for h in heroes:
             # fig.canvas.draw_idle()
         
     
-    # fig.canvas.mpl_connect("motion_notify_event", hover)
+    fig.canvas.mpl_connect("motion_notify_event", hover)
 
 
 # Event triggered at keypress
@@ -138,7 +148,6 @@ fig.canvas.mpl_connect('key_press_event', keypress)
 plt.show()
 
 # TODO
-## ADD TOGGLE ON HOVER
 ## ADD ANNOTATION
 #### add pictures to annotation
 ## ReWRITE EVERYTHING to be integrated into a main app.
