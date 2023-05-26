@@ -102,8 +102,7 @@ for h in heroes:
     # fig.canvas.mpl_connect("motion_notify_event", hover)
 
 
-
-# Function to toggle the visibility of plots
+# Event triggered at keypress
 def keypress(event):
     try:
         i = int(event.key)
@@ -112,6 +111,7 @@ def keypress(event):
         if event.key=="a":
             toggle_plots(-1)
         
+# Function to toggle the visibility of plots
 def toggle_plots(key):
     if key == -1:
         for plots in stackplots:
