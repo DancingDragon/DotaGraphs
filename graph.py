@@ -2,14 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 
-# Basic stacked area chart.
+# Import the data file
 data = {}
 import json
 with open('data.json') as json_file:
     data = json.load(json_file)
-   
+
+# Hero names and damage source names
 heroes = {}
 
+# Go through data and collect damage sources
 for min in data:
     for h in data[min].keys():
         if not h in heroes:
@@ -19,25 +21,32 @@ for min in data:
                 heroes[h].append(ds)
             
 
-# Create data
+# Time
 x = data.keys()
-# Basic stacked area chart.
+
+# Set up the plots
 fig, ax = plt.subplots(sharex=True, sharey=True)
 stackplots = []
 sumplots = []
+
+# make sure i know which order the plots are handled
 handledHeroes = []
 
+# Handle data
 for h in heroes:
-    # Handle data
     handledHeroes.append(h)
+    # Total damage dealt for each damagesource
     y = []
-    for a in heroes[h]:
+    # Add empty list for each source
+    for ds in heroes[h]:
         y.append([])
+    
+    # Go through the data and add to total damage
     for min in data:
-        for idx, ability in enumerate(heroes[h]):
+        for idx, dsource in enumerate(heroes[h]):
             val = 0
             try:
-                val = data[min][h][ability]
+                val = data[min][h][dsource]
             except:
                 pass
             if int(min) > 0:
@@ -45,11 +54,13 @@ for h in heroes:
             else:
                 y[idx].append(val)
     
+    # Invisible Stackplot of the damagesources
     plots = ax.stackplot(x, y)
     for p in plots:
         p.set_alpha(0.65)
         p.set_visible(False)
     stackplots.append(plots)
+    
     # Add Major+Minor Ticks
     ax.yaxis.set_major_locator(MultipleLocator(10000))
     ax.xaxis.set_major_locator(MultipleLocator(10))
@@ -57,12 +68,15 @@ for h in heroes:
     ax.xaxis.set_minor_locator(AutoMinorLocator(10))
     ax.yaxis.tick_right()
     ax.set_xmargin(0)
+    
+    # Lineplot of the total damage from each hero.
+    ax.plot(np.sum(y, axis=0))
+    
+    
     # Add annotation
     # annot = ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",
                     # bbox=dict(boxstyle="round", fc="w"))
     # annot.set_visible(True)
-    
-    ax.plot(np.sum(y, axis=0))
     
     
     # def hover(event):
@@ -86,11 +100,26 @@ for h in heroes:
         
     
     # fig.canvas.mpl_connect("motion_notify_event", hover)
-    
+
+
+
 # Function to toggle the visibility of plots
-def toggle_plots(event):
+def keypress(event):
     try:
         i = int(event.key)
+        toggle_plots(i)
+    except:
+        if event.key=="a":
+            toggle_plots(-1)
+        
+def toggle_plots(key):
+    if key == -1:
+        for plots in stackplots:
+            for plot in plots:
+                plot.set_visible(False)
+        ax.legend([],[]).remove()
+    else:
+        i = key
         for idx, plots in enumerate(stackplots):
             if i == idx:
                 for plot in plots:
@@ -101,16 +130,9 @@ def toggle_plots(event):
             else:
                 for idx, plot in enumerate(plots):
                     plot.set_visible(False)
-    except:
-        if event.key=="a":
-            for plots in stackplots:
-                for plot in plots:
-                    plot.set_visible(False)
-            ax.legend([],[]).remove()
-    finally:
-        fig.canvas.draw_idle()
+    fig.canvas.draw_idle()
         
-fig.canvas.mpl_connect('key_press_event', toggle_plots)
+fig.canvas.mpl_connect('key_press_event', keypress)
 
 # plot
 plt.show()
@@ -118,3 +140,6 @@ plt.show()
 # TODO
 ## ADD TOGGLE ON HOVER
 ## ADD ANNOTATION
+#### add pictures to annotation
+## ReWRITE EVERYTHING to be integrated into a main app.
+#### ADD buttons to toggle visiblity for each hero / team
