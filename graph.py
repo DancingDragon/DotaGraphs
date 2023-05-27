@@ -77,7 +77,7 @@ for h in heroes:
                 y[idx].append(val)
     
     # Lineplot of the total damage from each hero.
-    sumplots.append(ax.plot(np.sum(y, axis=0), zorder=-5)[0])
+    sumplots.append(ax.plot(np.sum(y, axis=0), zorder=-5, picker=True, pickradius=4)[0])
     
     # Invisible Stackplot of the damagesources
     plots = ax.stackplot(x, y, zorder=-1)
@@ -88,17 +88,18 @@ for h in heroes:
     
     ys.append(y)
 
+# Handle picking
+def onpick(event):
+    for idx, plot in enumerate(sumplots):
+        if event.artist==plot:
+            toggle_plots(idx)
+
 # Handle Hovering
 def hover(event):
     if event.inaxes == ax:
         xpos = round(event.xdata)
         mousexindicator.set_xdata([xpos, xpos])
         mousexindicator.set_visible(True)
-
-        # Hovering totalherodamage plots
-        for idx, plot in enumerate(sumplots):
-            if plot.contains(event)[0]:
-                toggle_plots(idx)
         
         # ANNOTATION FOR COMPARING PLAYERDAMAGE
         if selectedPlot == -1:
@@ -138,9 +139,6 @@ def hover(event):
         ax.set_title("Total Damage")
 
 
-        
-fig.canvas.mpl_connect("motion_notify_event", hover)
-
 # Event triggered at keypress
 def keypress(event):
     try:
@@ -174,6 +172,8 @@ def toggle_plots(key):
     fig.canvas.draw_idle()
         
 fig.canvas.mpl_connect('key_press_event', keypress)
+fig.canvas.mpl_connect('pick_event', onpick)
+fig.canvas.mpl_connect("motion_notify_event", hover)
 
 # plot
 plt.show()
