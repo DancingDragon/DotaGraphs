@@ -115,7 +115,8 @@ def hover(event):
                 if selectedPlot == idx:                
                     xpos = round(event.xdata)
                     text = ""
-                    for l in ys[idx][::-1]:
+                    for aid, l in enumerate(ys[idx][::-1]):
+                        text+=heroes[handledHeroes[idx]][-aid-1] + ": "
                         text+=str(l[xpos]) + "\n"
                         
                     annot.set_text(text)
