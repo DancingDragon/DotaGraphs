@@ -28,9 +28,12 @@ x = data.keys()
 fig, ax = plt.subplots(sharex=True, sharey=True)
 stackplots = []
 sumplots = []
+ys = []
 
 # make sure i know which order the plots are handled
 handledHeroes = []
+
+selectedPlot = -1
 
 # Handle data
 for h in heroes:
@@ -77,8 +80,10 @@ for h in heroes:
     # Add annotation
     annot = ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",
                     bbox=dict(boxstyle="round", fc="w"))
+    annot.get_bbox_patch().set_alpha(0.7)
     annot.set_visible(True)
-
+    
+    ys.append(y)
 
 # Handle Hovering
 def hover(event):
@@ -88,9 +93,8 @@ def hover(event):
             if plot.contains(event)[0]:
                 toggle_plots(idx)
         
-
         # ANNOTATION FOR COMPARING PLAYERDAMAGE
-        try:
+        if selectedPlot == -1:
             xpos = round(event.xdata)
             text = ""
             # Sort the plots
@@ -102,33 +106,24 @@ def hover(event):
             annot.set_text(text)
 
             annot.set_visible(True)
-            annot.get_bbox_patch().set_alpha(0.7)
             annot.xy = (xpos, 0)
 
-        except:
-            annot.set_visible(False)
-        finally:
-            fig.canvas.draw_idle()
            
         ######### ANNOTATION FOR STACK
-        # try:
-            # xpos = round(event.xdata)
-            # text = ""
-            # for l in y[::-1]:
-                # text+=str(l[xpos]) + "\n"
-                
-            # annot.set_text(text)
+        else:
+            for idx, plot in enumerate(stackplots):
+                if selectedPlot == idx:                
+                    xpos = round(event.xdata)
+                    text = ""
+                    for l in ys[idx][::-1]:
+                        text+=str(l[xpos]) + "\n"
+                        
+                    annot.set_text(text)
 
-            # annot.set_visible(True)
-            # annot.get_bbox_patch().set_alpha(0.4)
-            # annot.xy = (xpos, 0)
-
-
-        # except:
-            # annot.set_visible(False)
-        # finally:
-            # fig.canvas.draw_idle()
-                
+                    annot.set_visible(True)
+                    annot.xy = (xpos, 0)
+            
+        fig.canvas.draw_idle()
                 
     else:
         toggle_plots(-1)
@@ -148,6 +143,8 @@ def keypress(event):
         
 # Function to toggle the visibility of plots
 def toggle_plots(key):
+    global selectedPlot
+    selectedPlot = key
     if key == -1:
         for plots in stackplots:
             for plot in plots:
@@ -173,9 +170,7 @@ fig.canvas.mpl_connect('key_press_event', keypress)
 plt.show()
 
 # TODO
-## ADD ANNOTATION
-#### add pictures to annotation
+#### add pictures to annotations
 ## ReWRITE EVERYTHING to be integrated into a main app.
 #### ADD buttons to toggle visiblity for each hero / team
 ## CHANGE TOGGLEGRAPH TO PICK INSTEAD OF HOVER
-#### CHANGE ANNOTATION IF GRAPH PICKED TO BREAKUP OF THAT HERO
