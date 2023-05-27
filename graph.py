@@ -12,11 +12,11 @@ with open('data.json') as json_file:
 heroes = {}
 
 # Go through data and collect damage sources
-for min in data:
-    for h in data[min].keys():
+for minute in data:
+    for h in data[minute].keys():
         if not h in heroes:
             heroes[h] = []
-        for ds in data[min][h]:
+        for ds in data[minute][h]:
             if not ds in heroes[h]:
                 heroes[h].append(ds)
             
@@ -46,7 +46,7 @@ mousexindicator.set_visible(False)
 # Add annotation
 annot = ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",
                 bbox=dict(boxstyle="round", fc="w"))
-annot.get_bbox_patch().set_alpha(0.7)
+annot.get_bbox_patch().set_alpha(0.5)
 annot.set_visible(True)
 
 # make sure i know which order the plots are handled
@@ -64,14 +64,14 @@ for h in heroes:
         y.append([])
     
     # Go through the data and add to total damage
-    for min in data:
+    for minute in data:
         for idx, dsource in enumerate(heroes[h]):
             val = 0
             try:
-                val = data[min][h][dsource]
+                val = data[minute][h][dsource]
             except:
                 pass
-            if int(min) > 0:
+            if int(minute) > 0:
                 y[idx].append(val+y[idx][-1])
             else:
                 y[idx].append(val)
@@ -113,7 +113,7 @@ def hover(event):
             annot.set_text(text)
 
             annot.set_visible(True)
-            annot.xy = (xpos, 0)
+            annot.xy = (min(xpos+4, ax.get_xlim()[1]), 0)
 
            
         ######### ANNOTATION FOR STACK
@@ -128,7 +128,7 @@ def hover(event):
                     annot.set_text(text)
 
                     annot.set_visible(True)
-                    annot.xy = (xpos, 0)
+                    annot.xy = (min(xpos+4, ax.get_xlim()[1]), 0)
             
         fig.canvas.draw_idle()
                 
@@ -182,4 +182,6 @@ plt.show()
 #### add pictures to annotations
 ## ReWRITE EVERYTHING to be integrated into a main app.
 #### ADD buttons to toggle visiblity for each hero / team
-## CHANGE TOGGLEGRAPH TO PICK INSTEAD OF HOVER
+## ADD DOTPLOT with images for each combined item on top of main hero graph
+## add dotplot with deaths and images
+## add dotplot with kills
