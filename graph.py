@@ -55,12 +55,12 @@ for h in heroes:
                 y[idx].append(val)
     
     # Lineplot of the total damage from each hero.
-    sumplots.append(ax.plot(np.sum(y, axis=0), zorder=0))
+    sumplots.append(ax.plot(np.sum(y, axis=0), zorder=-5)[0])
     
     # Invisible Stackplot of the damagesources
-    plots = ax.stackplot(x, y, zorder=10)
+    plots = ax.stackplot(x, y, zorder=-1)
     for p in plots:
-        p.set_alpha(0.8)
+        p.set_alpha(0.9)
         p.set_visible(False)
     stackplots.append(plots)
     
@@ -75,21 +75,41 @@ for h in heroes:
     
     
     # Add annotation
-    # annot = ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",
-                    # bbox=dict(boxstyle="round", fc="w"))
-    # annot.set_visible(True)
+    annot = ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",
+                    bbox=dict(boxstyle="round", fc="w"))
+    annot.set_visible(True)
     
-    # Handle Hovering
-    def hover(event):
-        # Hovering totalherodamage plots
-        if event.inaxes == ax:
-            for idx, plot in enumerate(sumplots):
-                if plot[0].contains(event)[0]:
-                    toggle_plots(idx)
-        else:
-            toggle_plots(-1)
-        
-        # Annotation
+# Handle Hovering
+def hover(event):
+    # Hovering totalherodamage plots
+    if event.inaxes == ax:
+        # for idx, plot in enumerate(sumplots):
+            # if plot.contains(event)[0]:
+                # toggle_plots(idx)
+                
+        try:
+            xpos = round(event.xdata)
+            text = ""
+            # Sort the plots
+            pairs = zip(handledHeroes, sumplots)
+            # pairs.sort()
+            for plot in sumplots[::-1]:
+                value = plot.get_ydata()[xpos]
+                text+=str(value) + "\n"
+                
+            annot.set_text(text)
+
+            annot.set_visible(True)
+            annot.get_bbox_patch().set_alpha(0.7)
+            annot.xy = (xpos, 0)
+
+
+        except:
+            annot.set_visible(False)
+        finally:
+            fig.canvas.draw_idle()
+           
+        ######### ANNOTATION FOR STACK
         # try:
             # xpos = round(event.xdata)
             # text = ""
@@ -107,10 +127,12 @@ for h in heroes:
             # annot.set_visible(False)
         # finally:
             # fig.canvas.draw_idle()
+                
+                
+    # else:
+        # toggle_plots(-1)
         
-    
-    fig.canvas.mpl_connect("motion_notify_event", hover)
-
+fig.canvas.mpl_connect("motion_notify_event", hover)
 
 # Event triggered at keypress
 def keypress(event):
@@ -152,3 +174,5 @@ plt.show()
 #### add pictures to annotation
 ## ReWRITE EVERYTHING to be integrated into a main app.
 #### ADD buttons to toggle visiblity for each hero / team
+## CHANGE TOGGLEGRAPH TO PICK INSTEAD OF HOVER
+#### CHANGE ANNOTATION IF GRAPH PICKED TO BREAKUP OF THAT HERO
