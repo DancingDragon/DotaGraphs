@@ -123,8 +123,11 @@ def hover(event):
                 if selectedPlot == idx:                
                     text = ""
                     for aid, l in enumerate(ys[idx][::-1]):
+                        # Add name, damage, percentage to the annotation string
                         text+=heroes[handledHeroes[idx]][-aid-1] + ": "
-                        text+=str(l[xpos]) + "\n"
+                        # check total damage for percentage calculation
+                        total = sumplots[idx].get_ydata()[xpos]
+                        text+=str(l[xpos]) + " " + '%.1f' % (l[xpos]/total*100 if total >0 else 0) +"%\n"
                         
                     annot.set_text(text)
 
@@ -181,7 +184,6 @@ plt.show()
 
 # TODO
 #### add pictures to annotations
-#### add percentages to stackplot annotations 
 ## ReWRITE EVERYTHING to be integrated into a main app.
 #### ADD buttons to toggle visiblity for each hero / team
 ## ADD DOTPLOT with images for each combined item on top of main hero graph
