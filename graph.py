@@ -23,6 +23,7 @@ for minute in data:
 
 # Time
 x = data.keys()
+title = "Total Damage"
 
 # Set up the plots
 fig, ax = plt.subplots(sharex=True, sharey=True)
@@ -37,6 +38,7 @@ ax.yaxis.set_minor_locator(AutoMinorLocator(2))
 ax.xaxis.set_minor_locator(AutoMinorLocator(10))
 ax.yaxis.tick_right()
 ax.set_xmargin(0)
+ax.set_title(title)
 
 # Vertical line at mouseX
 mousexindicator = ax.axvline(x=0, linestyle='--', alpha=0.5) 
@@ -72,9 +74,8 @@ for h in heroes:
             except:
                 pass
             if int(minute) > 0:
-                y[idx].append(val+y[idx][-1])
-            else:
-                y[idx].append(val)
+                val = val+y[idx][-1]
+            y[idx].append(val)
     
     # Lineplot of the total damage from each hero.
     sumplots.append(ax.plot(np.sum(y, axis=0), zorder=-5, picker=True, pickradius=4)[0])
@@ -136,7 +137,7 @@ def hover(event):
         toggle_plots(-1)
         annot.set_visible(False)
         mousexindicator.set_visible(False)
-        ax.set_title("Total Damage")
+        ax.set_title(title)
 
 
 # Event triggered at keypress
@@ -180,6 +181,7 @@ plt.show()
 
 # TODO
 #### add pictures to annotations
+#### add percentages to stackplot annotations 
 ## ReWRITE EVERYTHING to be integrated into a main app.
 #### ADD buttons to toggle visiblity for each hero / team
 ## ADD DOTPLOT with images for each combined item on top of main hero graph
