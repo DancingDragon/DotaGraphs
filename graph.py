@@ -78,31 +78,32 @@ for h in heroes:
     annot = ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",
                     bbox=dict(boxstyle="round", fc="w"))
     annot.set_visible(True)
-    
+
+
 # Handle Hovering
 def hover(event):
-    # Hovering totalherodamage plots
     if event.inaxes == ax:
-        # for idx, plot in enumerate(sumplots):
-            # if plot.contains(event)[0]:
-                # toggle_plots(idx)
-                
+        # Hovering totalherodamage plots
+        for idx, plot in enumerate(sumplots):
+            if plot.contains(event)[0]:
+                toggle_plots(idx)
+        
+
+        # ANNOTATION FOR COMPARING PLAYERDAMAGE
         try:
             xpos = round(event.xdata)
             text = ""
             # Sort the plots
-            pairs = zip(handledHeroes, sumplots)
-            # pairs.sort()
-            for plot in sumplots[::-1]:
-                value = plot.get_ydata()[xpos]
-                text+=str(value) + "\n"
+            pairs = zip(handledHeroes, map(lambda plot: plot.get_ydata()[xpos], sumplots))
+            sort_pairs = sorted(pairs, key=lambda o: o[1], reverse=True)
+            for pair in sort_pairs:
+                text+=pair[0] + ": " + str(pair[1]) + "\n"
                 
             annot.set_text(text)
 
             annot.set_visible(True)
             annot.get_bbox_patch().set_alpha(0.7)
             annot.xy = (xpos, 0)
-
 
         except:
             annot.set_visible(False)
@@ -129,8 +130,10 @@ def hover(event):
             # fig.canvas.draw_idle()
                 
                 
-    # else:
-        # toggle_plots(-1)
+    else:
+        toggle_plots(-1)
+        annot.set_visible(False)
+
         
 fig.canvas.mpl_connect("motion_notify_event", hover)
 
