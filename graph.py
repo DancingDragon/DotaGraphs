@@ -30,6 +30,25 @@ stackplots = []
 sumplots = []
 ys = []
 
+# Add Major+Minor Ticks
+ax.yaxis.set_major_locator(MultipleLocator(10000))
+ax.xaxis.set_major_locator(MultipleLocator(10))
+ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+ax.xaxis.set_minor_locator(AutoMinorLocator(10))
+ax.yaxis.tick_right()
+ax.set_xmargin(0)
+
+# Vertical line at mouseX
+mousexindicator = ax.axvline(x=0, linestyle='--', alpha=0.5) 
+mousexindicator.set_visible(False)
+
+
+# Add annotation
+annot = ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",
+                bbox=dict(boxstyle="round", fc="w"))
+annot.get_bbox_patch().set_alpha(0.7)
+annot.set_visible(True)
+
 # make sure i know which order the plots are handled
 handledHeroes = []
 
@@ -67,27 +86,15 @@ for h in heroes:
         p.set_visible(False)
     stackplots.append(plots)
     
-    # Add Major+Minor Ticks
-    ax.yaxis.set_major_locator(MultipleLocator(10000))
-    ax.xaxis.set_major_locator(MultipleLocator(10))
-    ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    ax.xaxis.set_minor_locator(AutoMinorLocator(10))
-    ax.yaxis.tick_right()
-    ax.set_xmargin(0)
-    
-    
-    
-    # Add annotation
-    annot = ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",
-                    bbox=dict(boxstyle="round", fc="w"))
-    annot.get_bbox_patch().set_alpha(0.7)
-    annot.set_visible(True)
-    
     ys.append(y)
 
 # Handle Hovering
 def hover(event):
     if event.inaxes == ax:
+        xpos = round(event.xdata)
+        mousexindicator.set_xdata([xpos, xpos])
+        mousexindicator.set_visible(True)
+
         # Hovering totalherodamage plots
         for idx, plot in enumerate(sumplots):
             if plot.contains(event)[0]:
@@ -95,7 +102,6 @@ def hover(event):
         
         # ANNOTATION FOR COMPARING PLAYERDAMAGE
         if selectedPlot == -1:
-            xpos = round(event.xdata)
             text = ""
             # Sort the plots
             pairs = zip(handledHeroes, map(lambda plot: plot.get_ydata()[xpos], sumplots))
@@ -113,7 +119,6 @@ def hover(event):
         else:
             for idx, plot in enumerate(stackplots):
                 if selectedPlot == idx:                
-                    xpos = round(event.xdata)
                     text = ""
                     for aid, l in enumerate(ys[idx][::-1]):
                         text+=heroes[handledHeroes[idx]][-aid-1] + ": "
@@ -129,6 +134,9 @@ def hover(event):
     else:
         toggle_plots(-1)
         annot.set_visible(False)
+        mousexindicator.set_visible(False)
+        ax.set_title("Total Damage")
+
 
         
 fig.canvas.mpl_connect("motion_notify_event", hover)
